@@ -1,6 +1,7 @@
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 plugins {
-    id("com.android.library") version "9.2.0"
+    id("com.android.library") version "9.4.1"
+    kotlin("android") version "2.3.21"
 }
 
 android {
@@ -9,6 +10,7 @@ android {
 
     defaultConfig {
         minSdk = 24
+        targetSdk = 34
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -18,12 +20,17 @@ android {
         }
         getByName("debug") {
             isMinifyEnabled = false
+            
         }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
 }
@@ -39,5 +46,5 @@ dependencies {
 
 
 tasks.withType<AbstractArchiveTask>().configureEach {
-    archiveBaseName.set("notificationbinding")
+    archiveBaseName.set("minimalffireproandroid")
 }

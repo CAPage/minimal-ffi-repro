@@ -7,8 +7,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.7.9", features = [] }
-manganis = { version = "0.7.9" }
+# Current (latest) version of dioxus/manganis
+dioxus = {version = "0.8.0-alpha.0"}
+manganis = { version = "0.8.0-alpha.0"}
+
+# My local patched version
+#dioxus = { path = "../dioxus/packages/dioxus", version = "0.8.0-alpha.0"}
+#manganis = { path = "../dioxus/packages/manganis/manganis", version = "0.8.0-alpha.0"}
+
 
 [features]
 default = ["mobile"]

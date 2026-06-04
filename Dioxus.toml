@@ -22,3 +22,7 @@ script = []
 # Javascript code file
 # serve: [dev-server] only
 script = []
+
+[android]
+min_sdk = 24
+target_sdk = 34

@@ -4,16 +4,14 @@ const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
 const HEADER_SVG: Asset = asset!("/assets/header.svg");
 
-#[cfg(target_os = "android")]
 #[manganis::ffi("src/android")]
 extern "Kotlin" {
-    pub type MinimalFFIRepro;
-    pub fn f(this : &MinimalFFIRepro) -> i32;
+    pub type MinimalFFIReproAndroid;
+    pub fn f(this : &MinimalFFIReproAndroid) -> i32;
+    pub fn g(this : &MinimalFFIReproAndroid) -> String;
 }
 
 fn main() {
-    let testObj = MinimalFFIRepro::new().unwrap();
-    println!("{}",f(&testObj).unwrap());
     dioxus::launch(App);
 }
 
@@ -29,18 +27,51 @@ fn App() -> Element {
 
 #[component]
 pub fn Hero() -> Element {
+    with_activity(|
+        mut env,
+        activity|
+    {
+        // Trying to load some classes with both find_class and load_class_from_classloader
+        let classes = vec![
+            "java/lang/String",
+            "java/lang/ClassLoader",
+            "com/google/android/material/badge/BadgeDrawable",
+            "com/example/minimalffirepro/BuildConfig",
+            "dev/dioxus/main/Logger",
+            "com/example/minimalffirepro/MinimalFFIReproAndroid",
+        ];
+        for class in classes.iter() {
+            match find_class(env,class) { 
+                Ok(_v) => println!("Found (find_class): {}", class),
+                Err(_e) => { println!("Not found (find_class): {}",class); }
+            };
+            let _ = env.exception_clear();
+        }
+
+        for class in classes.iter() {
+            match load_class_from_classloader(env,class) { 
+                Ok(_v) => println!("Found (load_class_from_classloader): {}", class),
+                Err(_e) => { println!("Not found (load_class_from_classloader): {}",class); }
+            };
+            let _ = env.exception_clear();
+        }
+        Some(1)
+    });
+
+    
+    let testObj = MinimalFFIReproAndroid::new();
+    let gValue = match testObj
+    {
+        Ok(v) => g(&v).unwrap(),
+        Err(e) => {println!("Issue calling g() - {}",e); "Can't get from Kotlin".to_string()},
+    };
+
     rsx! {
         div {
             id: "hero",
-            img { src: HEADER_SVG, id: "header" }
-            div { id: "links",
-                a { href: "https://dioxuslabs.com/learn/0.7/", "📚 Learn Dioxus" }
-                a { href: "https://dioxuslabs.com/awesome", "🚀 Awesome Dioxus" }
-                a { href: "https://github.com/dioxus-community/", "📡 Community Libraries" }
-                a { href: "https://github.com/DioxusLabs/sdk", "⚙️ Dioxus Development Kit" }
-                a { href: "https://marketplace.visualstudio.com/items?itemName=DioxusLabs.dioxus", "💫 VSCode Extension" }
-                a { href: "https://discord.gg/XgGxMSkvUM", "👋 Community Discord" }
-            }
+        p {
+            {gValue.to_string()}
         }
     }
+}
 }
